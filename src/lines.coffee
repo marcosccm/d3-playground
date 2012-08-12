@@ -20,6 +20,13 @@ $ ->
           .append('g')
           .attr('transform', "translate(#{margin.left},#{margin.top})")
 
+  svg.append('defs')
+     .append('clipPath')
+     .attr('id', 'clip')
+     .append('rect')
+     .attr('width', width)
+     .attr('height', height)
+
   svg.append('g')
      .attr('class', 'x axis')
      .attr('transform',"translate(0,#{height})")
@@ -29,10 +36,24 @@ $ ->
      .attr('class', 'y axis')
      .call(d3.svg.axis().scale(y).orient('left'))
 
+  path = svg.append('g').attr('clip-path', 'url(#clip)')
+            .append('path')
+            .data([data])
+            .attr('class', 'line')
+            .attr('d', line)
 
-  svg.append('path')
-     .data([data])
-     .attr('class', 'line')
-     .attr('d', line)
-  
+  tick = ->
+    data.push(random())
+    
+    path.attr('d', line)
+        .attr('transform', null)
+        .transition()
+        .duration(1000)
+        .ease('linear')
+        .attr('transform', "translate(#{x(-1)})")
+        .each('end', tick)
+    
+    data.shift()
+
+  tick()
         
